@@ -246,4 +246,6 @@
             echo"\e[1;31;41m[ • ] \e[0m\e[0;41m SI-PNI INVALID : ID: $id | CPF/CNS: $cpf  | [ BOT TELEGRAM ] | $date ] "."\e[0m\e[1;31;41m[ • ] \e[0m\n";
         }
     }
+    //////// ! BOT TELEGRAM /////////////////
+    
 ?>
