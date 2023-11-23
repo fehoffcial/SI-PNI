@@ -1,12 +1,49 @@
 <?php
-    function MonitoringInfo($id,$cpf,$idioma){
+    error_reporting(0);
+    function CheckToken(){
+        $http = [
+            'POST /pni-bff/v1/autenticacao/tokenAcesso HTTP/2',
+            'Host: servicos-cloud.saude.gov.br',
+            'Content-Length: 0',
+            'Sec-Ch-Ua: "Chromium";v="119", "Not?A_Brand";v="24"',
+            'Accept: application/json',
+            'X-Authorization: Basic cGF1bG96YXJhMDFAeWFob28uY29tLmJyOmZhbGFzZXJpbzQ4',
+            'Sec-Ch-Ua-Mobile: ?0',
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.159 Safari/537.36',
+            'Sec-Ch-Ua-Platform: "Windows"',
+            'Origin: https://si-pni.saude.gov.br',
+            'Sec-Fetch-Site: same-site',
+            'Sec-Fetch-Mode: cors',
+            'Sec-Fetch-Dest: empty',
+            'Referer: https://si-pni.saude.gov.br/',
+            'Accept-Encoding: gzip, deflate, br',
+            'Priority: u=1, i',
+        ];
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://servicos-cloud.saude.gov.br/pni-bff/v1/autenticacao/tokenAcesso",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_HTTPHEADER => $http,
+        ));
+        $response = curl_exec($curl);
+        $response = json_decode($response, true);
+        curl_close($curl);
+        $refreshToken = $response["accessToken"];
+        return $refreshToken;
+    }
+    function MonitoringInfo($id,$cpf,$idioma="BR"){
+        $CheckToken = CheckToken();
         $date = date('d/m/Y H:i:s');
         $http = [
             'Host: servicos-cloud.saude.gov.br',
             'Sec-Ch-Ua: "Chromium";v="119", "Not?A_Brand";v="24"',
             'Accept: application/json, text/plain, */*',
             'Sec-Ch-Ua-Mobile: ?0',
-            'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIyMzU5ODkxMzI0OSIsIm9yaWdlbSI6IlNDUEEiLCJpc3MiOiJzYXVkZS5nb3YuYnIiLCJub21lIjoicGF1bG8gaGVucmlxdWUgZGUgamVzdXMgc2FudGFuYSIsImF1dGhvcml0aWVzIjpbIlJPTEVfU0ktUE5JX09FU0MiLCJST0xFX1NJLVBOSV9HTSIsIlJPTEVfU0ktUE5JIiwiUk9MRV9TQ1BBX0dFUyIsIlJPTEVfU0NQQV9VU1IiLCJST0xFX1NJLVBOSV9HRVNBIiwiUk9MRV9TQ1BBIl0sImNsaWVudF9pZCI6IlNJLVBOSSIsInNjb3BlIjpbIkNOU0RJR0lUQUwiLCJHT1ZCUiIsIlNDUEEiXSwiY25lcyI6Im51bGwiLCJvcmdhbml6YXRpb24iOiJEQVRBU1VTIiwiY3BmIjoiMjM1OTg5MTMyNDkiLCJleHAiOjE3MDAwNTA0MTcsImp0aSI6IjE3MmE0MWUwLTM3YjMtNDkwZC04MmRjLThhOWRhNmVhMTU1MyIsImtleSI6Ijk5MDk3IiwiZW1haWwiOiJwYXVsb3phcmEwMUB5YWhvby5jb20uYnIifQ.MAupWZYz511LN4ltOyJwrj4ut8ji1QQfWgsYdfdSjOo',
+            'Authorization: Bearer '.$CheckToken,
             'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.123 Safari/537.36',
             'Sec-Ch-Ua-Platform: "Windows"',
             'Origin: https://si-pni.saude.gov.br',
@@ -68,7 +105,7 @@
                 'Sec-Ch-Ua: "Chromium";v="119", "Not?A_Brand";v="24"',
                 'Accept: application/json, text/plain, */*',
                 'Sec-Ch-Ua-Mobile: ?0',
-                'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIyMzU5ODkxMzI0OSIsIm9yaWdlbSI6IlNDUEEiLCJpc3MiOiJzYXVkZS5nb3YuYnIiLCJub21lIjoicGF1bG8gaGVucmlxdWUgZGUgamVzdXMgc2FudGFuYSIsImF1dGhvcml0aWVzIjpbIlJPTEVfU0ktUE5JX09FU0MiLCJST0xFX1NJLVBOSV9HTSIsIlJPTEVfU0ktUE5JIiwiUk9MRV9TQ1BBX0dFUyIsIlJPTEVfU0NQQV9VU1IiLCJST0xFX1NJLVBOSV9HRVNBIiwiUk9MRV9TQ1BBIl0sImNsaWVudF9pZCI6IlNJLVBOSSIsInNjb3BlIjpbIkNOU0RJR0lUQUwiLCJHT1ZCUiIsIlNDUEEiXSwiY25lcyI6Im51bGwiLCJvcmdhbml6YXRpb24iOiJEQVRBU1VTIiwiY3BmIjoiMjM1OTg5MTMyNDkiLCJleHAiOjE3MDAwNTA0MTcsImp0aSI6IjE3MmE0MWUwLTM3YjMtNDkwZC04MmRjLThhOWRhNmVhMTU1MyIsImtleSI6Ijk5MDk3IiwiZW1haWwiOiJwYXVsb3phcmEwMUB5YWhvby5jb20uYnIifQ.MAupWZYz511LN4ltOyJwrj4ut8ji1QQfWgsYdfdSjOo',
+                'Authorization: Bearer '.$CheckToken,
                 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.123 Safari/537.36',
                 'Sec-Ch-Ua-Platform: "Windows"',
                 'Origin: https://si-pni.saude.gov.br',
@@ -101,7 +138,7 @@
                 'Sec-Ch-Ua: "Chromium";v="119", "Not?A_Brand";v="24"',
                 'Accept: application/json, text/plain, */*',
                 'Sec-Ch-Ua-Mobile: ?0',
-                'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIyMzU5ODkxMzI0OSIsIm9yaWdlbSI6IlNDUEEiLCJpc3MiOiJzYXVkZS5nb3YuYnIiLCJub21lIjoicGF1bG8gaGVucmlxdWUgZGUgamVzdXMgc2FudGFuYSIsImF1dGhvcml0aWVzIjpbIlJPTEVfU0ktUE5JX09FU0MiLCJST0xFX1NJLVBOSV9HTSIsIlJPTEVfU0ktUE5JIiwiUk9MRV9TQ1BBX0dFUyIsIlJPTEVfU0NQQV9VU1IiLCJST0xFX1NJLVBOSV9HRVNBIiwiUk9MRV9TQ1BBIl0sImNsaWVudF9pZCI6IlNJLVBOSSIsInNjb3BlIjpbIkNOU0RJR0lUQUwiLCJHT1ZCUiIsIlNDUEEiXSwiY25lcyI6Im51bGwiLCJvcmdhbml6YXRpb24iOiJEQVRBU1VTIiwiY3BmIjoiMjM1OTg5MTMyNDkiLCJleHAiOjE3MDAwNTA0MTcsImp0aSI6IjE3MmE0MWUwLTM3YjMtNDkwZC04MmRjLThhOWRhNmVhMTU1MyIsImtleSI6Ijk5MDk3IiwiZW1haWwiOiJwYXVsb3phcmEwMUB5YWhvby5jb20uYnIifQ.MAupWZYz511LN4ltOyJwrj4ut8ji1QQfWgsYdfdSjOo',
+                'Authorization: Bearer '.$CheckToken,
                 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.123 Safari/537.36',
                 'Sec-Ch-Ua-Platform: "Windows"',
                 'Origin: https://si-pni.saude.gov.br',
@@ -137,7 +174,7 @@
                 'Sec-Ch-Ua: "Chromium";v="119", "Not?A_Brand";v="24"',
                 'Accept: application/json, text/plain, */*',
                 'Sec-Ch-Ua-Mobile: ?0',
-                'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIyMzU5ODkxMzI0OSIsIm9yaWdlbSI6IlNDUEEiLCJpc3MiOiJzYXVkZS5nb3YuYnIiLCJub21lIjoicGF1bG8gaGVucmlxdWUgZGUgamVzdXMgc2FudGFuYSIsImF1dGhvcml0aWVzIjpbIlJPTEVfU0ktUE5JX09FU0MiLCJST0xFX1NJLVBOSV9HTSIsIlJPTEVfU0ktUE5JIiwiUk9MRV9TQ1BBX0dFUyIsIlJPTEVfU0NQQV9VU1IiLCJST0xFX1NJLVBOSV9HRVNBIiwiUk9MRV9TQ1BBIl0sImNsaWVudF9pZCI6IlNJLVBOSSIsInNjb3BlIjpbIkNOU0RJR0lUQUwiLCJHT1ZCUiIsIlNDUEEiXSwiY25lcyI6Im51bGwiLCJvcmdhbml6YXRpb24iOiJEQVRBU1VTIiwiY3BmIjoiMjM1OTg5MTMyNDkiLCJleHAiOjE3MDAwNTA0MTcsImp0aSI6IjE3MmE0MWUwLTM3YjMtNDkwZC04MmRjLThhOWRhNmVhMTU1MyIsImtleSI6Ijk5MDk3IiwiZW1haWwiOiJwYXVsb3phcmEwMUB5YWhvby5jb20uYnIifQ.MAupWZYz511LN4ltOyJwrj4ut8ji1QQfWgsYdfdSjOo',
+                'Authorization: Bearer '.$CheckToken,
                 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.123 Safari/537.36',
                 'Sec-Ch-Ua-Platform: "Windows"',
                 'Origin: https://si-pni.saude.gov.br',
@@ -207,7 +244,6 @@
             }
         }else{
             echo"\e[1;31;41m[ • ] \e[0m\e[0;41m SI-PNI INVALID : ID: $id | CPF/CNS: $cpf  | [ BOT TELEGRAM ] | $date ] "."\e[0m\e[1;31;41m[ • ] \e[0m\n";
-
         }
     }
 ?>
